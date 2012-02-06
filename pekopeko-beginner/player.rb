@@ -6,8 +6,15 @@ class Player
   RETREAT_HEALTH = 10
 
   def play_turn(warrior)
-        
-    if under_attack
+    initialise(warrior)
+    
+    if @change_direction.nil?
+        @change_direction = false
+        warrior.pivot!(:backward)
+    elsif @change_direction == true
+        warrior.pivot!(:forward)
+        change_direction = false
+    elsif @under_attack
         handle_attack(warrior) 
     else
         rest_then_move(warrior)
@@ -22,17 +29,10 @@ class Player
         @health = warrior.health
     end
 
-    if @explored_backwards.nil?
-        @explored_backwards = false
-    end
 
-    if @explored_backwards
-        @target_direction = :forward
-        @alt_direction = :backward
-    else
-        @target_direction = :backward
-        @alt_direction = :backward
-    end
+
+    @target_direction = :forward
+    @alt_direction = :backward
 
     @front_space = warrior.feel(@target_direction)
     @rear_space = warrior.feel(@alt_direction)
@@ -41,7 +41,7 @@ class Player
     puts "Backwards is ", @rear_space
 
     #are we under attack?
-    under_attack = under_attack?(warrior)
+    @under_attack = under_attack?(warrior)
   end
 
   def under_attack?(warrior)
@@ -72,7 +72,7 @@ class Player
         warrior.walk!(@target_direction)
     else
         warrior.rescue!(@target_direction)
-        @explored_backwards = true
+        #@change_direction = true
     end
 
   end
