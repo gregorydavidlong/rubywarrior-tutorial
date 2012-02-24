@@ -38,16 +38,27 @@ class Player
 
   def find_biggest_threat(warrior)
      direction = 0
+     #find archers
      for dir_array in @surrounds do
-         
          for x in dir_array do
              if x.inspect == "Archer" then
                     return @directions[direction]
              end
          end
-
          direction += 1
      end
+     direction = 0
+     for dir_array in @surrounds do
+         for x in dir_array do
+             if x.inspect == "Captive" then
+                    return @directions[direction]
+             end
+         end
+         direction += 1
+     end
+
+     #find captives
+
      @directions[0]
   end
 
@@ -62,6 +73,8 @@ class Player
         warrior.walk!
     elsif (@forward_look[0].captive?)
         warrior.rescue!
+    elsif (@forward_look[0].wall?)
+        warrior.pivot!(:backward)
     end
   end
 
