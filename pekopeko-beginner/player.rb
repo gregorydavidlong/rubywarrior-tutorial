@@ -13,24 +13,15 @@ class Player
     @right_look = warrior.look(:right)
     @backward_look = warrior.look(:backward)
 
+    @directions = [:forward, :left, :right, :backward]
+    @surrounds = [@forward_look, @left_look, @right_look, @backward_look]
+
     puts "Forwards: " + @forward_look.inspect
     puts "Left: " + @left_look.inspect
     puts "Right: " + @right_look.inspect
     puts "Backwards: " + @backward_look.inspect
 
     make_a_move(warrior)
-
-    #if @change_direction.nil?
-    #    @change_direction = false
-    #    warrior.pivot!(:backward)
-    #elsif @change_direction == true
-    #    warrior.pivot!(:forward)
-    #    change_direction = false
-    #elsif @under_attack
-    #    handle_attack(warrior) 
-    #else
-    #    rest_then_move(warrior)
-    #end
 
     @health = warrior.health
   end
@@ -41,21 +32,31 @@ class Player
         @health = warrior.health
     end
 
-    @target_direction = :forward
-    @alt_direction = :backward
-
-    @front_space = warrior.feel(@target_direction)
-    @rear_space = warrior.feel(@alt_direction)
-
-    #puts "Forwards is ", @front_space
-    #puts "Backwards is ", @rear_space
-
     #are we under attack?
     @under_attack = under_attack?(warrior)
   end
 
+  def find_biggest_threat(warrior)
+     direction = 0
+     for dir_array in @surrounds do
+         
+         for x in dir_array do
+             if x.inspect == "Archer" then
+                    return @directions[direction]
+             end
+         end
+
+         direction += 1
+     end
+     @directions[0]
+  end
+
   def make_a_move(warrior)
-    if (should_attack?(warrior, @forward_look))
+    # Locate threats
+    direction = find_biggest_threat(warrior)
+    if (direction != :forward)
+        warrior.pivot!(direction)
+    elsif (should_attack?(warrior, @forward_look))
         warrior.shoot!
     elsif (@forward_look[0].empty?)
         warrior.walk!
@@ -105,7 +106,6 @@ class Player
         warrior.walk!(@target_direction)
     else
         warrior.rescue!(@target_direction)
-        #@change_direction = true
     end
 
   end
